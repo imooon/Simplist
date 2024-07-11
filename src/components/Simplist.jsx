@@ -1,14 +1,27 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import simplist_icon from '../assets/add.png'
 import Items from './Items'
 
 const Simplist = () => {
 
+const [todoList, setTodoList] = useState([]);
+
 const inputRef = useRef();
 
 const add = () => {
     const inputText = inputRef.current.value.trim();
-    console.log(inputText);
+
+    if (inputText === "") {
+        return null;
+    }
+    
+    const newTodo = {
+        id: Date.now(),
+        text: inputText,
+        isComplete: false,
+    }
+    setTodoList((prev)=> [...prev, newTodo]);
+    inputRef.current.value = "";
 }
   return (
     <div className='bg-white place-self-center w-11/12 max-w-md flex flex-col p-7 min-h-[550px] rounded-xl'>
@@ -30,8 +43,9 @@ const add = () => {
         {/*--- tasks ---*/}
 
         <div>
-            <Items text="Create Backend"/>
-            <Items text="Create Mobile App"/>
+            {todoList.map((item, index)=>{
+                return <Items key={index} text={item.text}/>
+            })}
         </div>
 
 
