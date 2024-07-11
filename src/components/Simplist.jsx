@@ -1,5 +1,6 @@
 import React from 'react'
 import simplist_icon from '../assets/add.png'
+import Items from './Items'
 
 const Simplist = () => {
   return (
@@ -22,7 +23,8 @@ const Simplist = () => {
         {/*--- tasks ---*/}
 
         <div>
-            
+            <Items text="Create Backend"/>
+            <Items text="Create Mobile App"/>
         </div>
 
 
