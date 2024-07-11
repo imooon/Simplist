@@ -3,11 +3,11 @@ import check from '../assets/check.png'
 import uncheck from '../assets/uncheck.png'
 import bin from '../assets/bin.png'
 
-const Items = ({text, id, isComplete, binTodo}) => {
+const Items = ({text, id, isComplete, binTodo, toggle}) => {
   return (
-    <div className='flex items-center my-3 gap-2'>
+    <div onClick={()=>{toggle(id)}} className='flex items-center my-3 gap-2'>
       <div className='flex flex-1 items-center cursor-pointer'>
-        <img src={check} alt="" className='w-7'/>
+        <img src={isComplete ? check : uncheck} alt="" className='w-7'/>
         <p className='text-slate-700 ml-4 text-[17px]'>{text}</p>
       </div>
       <img onClick={()=>{binTodo(id)}} src={bin} alt="" className='w-3.5 cursor-pointer'/>
