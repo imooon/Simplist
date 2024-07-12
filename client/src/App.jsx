@@ -1,4 +1,4 @@
-//rafce snippet//
+//rafce snippet goes here//
 import React from 'react'
 import Simplist from './components/Simplist'
 
