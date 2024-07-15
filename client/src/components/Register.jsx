@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const Register = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5050/auth/register', { username, password });
+      const response = await axios.post('http://localhost:5050/auth/register', { email, password });
       console.log(response.data); // Log success message or handle differently as needed
     } catch (error) {
       console.error('Error registering user:', error);
@@ -21,13 +21,13 @@ const Register = () => {
         <h2 className="text-2xl font-semibold mb-4">Register</h2>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">
-            Username
+            Email
           </label>
           <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
             required
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
