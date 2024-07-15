@@ -13,6 +13,7 @@ export default class User {
 
   toDbObject() {
     return {
+      _id: new ObjectId(),
       username: this.username,
       password: this.password,
     };
