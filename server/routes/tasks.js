@@ -1,86 +1,95 @@
-import express from "express";
+import express from 'express';
+import db from '../db/connection.js';
+import { ObjectId } from 'mongodb';
+import authMiddleware from '../middleware/authMiddleware.js';
 
-// This will help us connect to the database
-import db from "../db/connection.js";
-
-// This help convert the id from string to ObjectId for the _id.
-import { ObjectId } from "mongodb";
-
-// router is an instance of the express router.
-// We use it to define our routes.
-// The router will be added as a middleware and will take control of requests starting with path /todolist.
 const router = express.Router();
 
-// This section will help you get a list of all the tasks.
-router.get("/", async (req, res) => {
-  let collection = await db.collection("todolist");
-  let results = await collection.find({}).toArray();
-  res.send(results).status(200);
-});
+// Protect all routes with authMiddleware
+router.use(authMiddleware);
 
-// This section will help you get a single task by id
-router.get("/:id", async (req, res) => {
-  let collection = await db.collection("todolist");
-  let query = { _id: new ObjectId(req.params.id) };
-  let result = await collection.findOne(query);
-
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
-});
-
-// This section will help you create a new task.
-router.post("/", async (req, res) => {
+// GET a list of all the tasks for the logged-in user.
+router.get('/', async (req, res) => {
   try {
-    let newTodo = {
+    const collection = await db.collection('todolist');
+    const results = await collection.find({ userId: req.user.id }).toArray();
+    res.status(200).send(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching tasks');
+  }
+});
+
+// GET a single task by id for the logged-in user.
+router.get('/:id', async (req, res) => {
+  try {
+    const collection = await db.collection('todolist');
+    const query = { _id: new ObjectId(req.params.id), userId: req.user.id };
+    const result = await collection.findOne(query);
+
+    if (!result) return res.status(404).send('Not found');
+    res.status(200).send(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching task');
+  }
+});
+
+// POST a new task for the logged-in user.
+router.post('/', async (req, res) => {
+  try {
+    const newTodo = {
       title: req.body.title,
       description: req.body.description,
       dueDate: req.body.dueDate,
       completed: req.body.completed || false, // Default to false if not provided
+      userId: req.user.id, // Associate the task with the logged-in user
     };
 
-    let collection = await db.collection("todolist");
-    let result = await collection.insertOne(newTodo);
+    const collection = await db.collection('todolist');
+    const result = await collection.insertOne(newTodo);
     res.status(201).send(result); // Send result and use 201 status code for created
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error adding item");
+    res.status(500).send('Error adding item');
   }
 });
 
-
-// This section will help you update a task by id.
-router.patch("/:id", async (req, res) => {
+// UPDATE a task by id for the logged-in user.
+router.patch('/:id', async (req, res) => {
   try {
-    const query = { _id: new ObjectId(req.params.id) };
+    const query = { _id: new ObjectId(req.params.id), userId: req.user.id };
     const updates = {
       $set: {
-        name: req.body.name,
-        position: req.body.position,
-        level: req.body.level,
+        title: req.body.title,
+        description: req.body.description,
+        dueDate: req.body.dueDate,
+        completed: req.body.completed,
       },
     };
 
-    let collection = await db.collection("todolist");
-    let result = await collection.updateOne(query, updates);
-    res.send(result).status(200);
+    const collection = await db.collection('todolist');
+    const result = await collection.updateOne(query, updates);
+    if (result.matchedCount === 0) return res.status(404).send('Task not found');
+    res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error updating item");
+    res.status(500).send('Error updating item');
   }
 });
 
-// This section will help you delete a task
-router.delete("/:id", async (req, res) => {
+// DELETE a task by id for the logged-in user.
+router.delete('/:id', async (req, res) => {
   try {
-    const query = { _id: new ObjectId(req.params.id) };
+    const query = { _id: new ObjectId(req.params.id), userId: req.user.id };
 
-    const collection = db.collection("todolist");
-    let result = await collection.deleteOne(query);
-
-    res.send(result).status(200);
+    const collection = await db.collection('todolist');
+    const result = await collection.deleteOne(query);
+    if (result.deletedCount === 0) return res.status(404).send('Task not found');
+    res.status(200).send(result);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error deleting item");
+    res.status(500).send('Error deleting item');
   }
 });
 

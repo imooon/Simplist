@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import simplist_icon from '../assets/add.png';
 import Items from './Items';
-import axios from 'axios'; // Import axios for making HTTP requests
+import axios from 'axios'; 
 
-const Simplist = () => {
+const Simplist = ({ token }) => {
   const [todoList, setTodoList] = useState([]);
   const inputRef = useRef();
 
@@ -11,14 +11,16 @@ const Simplist = () => {
   useEffect(() => {
     const fetchTodos = async () => {
       try {
-        const response = await axios.get('http://localhost:5050/tasks');
+        const response = await axios.get('http://localhost:5050/tasks', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setTodoList(response.data);
       } catch (error) {
         console.error("Error fetching todos:", error);
       }
     };
     fetchTodos();
-  }, []);
+  }, [token]);
 
   // Add a new todo
   const add = async () => {
@@ -33,7 +35,9 @@ const Simplist = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:5050/tasks', newTodo);
+      const response = await axios.post('http://localhost:5050/tasks', newTodo, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setTodoList((prev) => [...prev, response.data]);
       inputRef.current.value = "";
     } catch (error) {
@@ -44,7 +48,9 @@ const Simplist = () => {
   // Delete a todo
   const binTodo = async (id) => {
     try {
-      await axios.delete(`http://localhost:5050/tasks/${id}`);
+      await axios.delete(`http://localhost:5050/tasks/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setTodoList((prevTodos) => prevTodos.filter((todo) => todo._id !== id));
     } catch (error) {
       console.error("Error deleting todo:", error);
@@ -57,7 +63,9 @@ const Simplist = () => {
     const updatedTodo = { ...todo, completed: !todo.completed };
 
     try {
-      await axios.patch(`http://localhost:5050/tasks/${id}`, updatedTodo);
+      await axios.patch(`http://localhost:5050/tasks/${id}`, updatedTodo, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setTodoList((prevTodos) => prevTodos.map((todo) => (todo._id === id ? updatedTodo : todo)));
     } catch (error) {
       console.error("Error updating todo:", error);

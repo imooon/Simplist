@@ -1,13 +1,34 @@
-//rafce snippet goes here//
-import React from 'react'
-import Simplist from './components/Simplist'
+import React, { useState, useEffect } from 'react';
+import Register from './components/Register';
+import Login from './components/Login';
+import Simplist from './components/Simplist';
 
 const App = () => {
-  return (
-    <div className='bg-stone-900 grid py-4 min-h-screen'>
-      <Simplist/>
-    </div>
-  )
-}
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
 
-export default App
+  useEffect(() => {
+    // Token validation check here
+  }, [token]);
+
+  return (
+    <div>
+      {!token ? (
+        <>
+          <Register />
+          <Login setToken={setToken} />
+        </>
+      ) : (
+        <div>
+          <h1>Welcome to the app!</h1>
+          <button onClick={() => {
+            setToken('');
+            localStorage.removeItem('token');
+          }}>Logout</button>
+          <Simplist token={token} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
